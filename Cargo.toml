@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 opencv = "0.63.0"
+ansi_rgb = "0.2.0"
+rgb = "0.8"
