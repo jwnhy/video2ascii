@@ -8,7 +8,7 @@ homepage = "https://github.com/jwnhy/video2ascii"
 repository = "https://github.com/jwnhy/video2ascii"
 keywords = ["cli", "ascii", "video"]
 categories = ["command-line-utilities"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 include = [
     "**/*.rs",

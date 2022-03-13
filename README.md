@@ -20,7 +20,7 @@ cargo install video2ascii
 
 ## Demo
 
-![https://github.com/jwnhy/video2ascii](./demo.apng)
+![Demo](https://github.com/jwnhy/video2ascii/raw/main/demo.apng)
 
 ## How to use
 
