@@ -1,74 +1,62 @@
-use opencv::{core::*, highgui, imgproc, prelude::*, videoio, Result};
+mod render;
+mod termctl;
+mod videoinput;
 
-use ansi_rgb::*;
-use rgb::RGB8;
+use clap::Parser;
+use opencv::prelude::*;
+use opencv::Result;
+use std::sync::mpsc;
+use std::thread;
+use std::time::*;
 
-use std::thread::sleep;
-use std::time::{Duration, Instant};
-
-fn clear_screen() {
-    print!("\x1b[2J");
-    print!("\x1b[H");
-}
-
-fn pixel_to_ascii(pixel: &VecN<u8, 3>) -> char {
-    let brightness = brightness(pixel);
-    //let scale = r#"@%#*+=-:.   "#;
-    let scale = r#"   .:=+*#%@"#;
-    let max_idx = scale.len();
-    let idx = (brightness / 256.0 * max_idx as f32).floor() as usize;
-    scale.chars().nth(idx).unwrap()
-}
-
-fn pixel_to_rgb(pixel: &VecN<u8, 3>) -> RGB8 {
-    let (b, g, r) = (pixel[0], pixel[1], pixel[2]);
-    RGB8::new(r, g, b)
-}
-
-fn brightness(pixel: &VecN<u8, 3>) -> f32 {
-    let (b, g, r) = (pixel[0], pixel[1], pixel[2]);
-    0.3 * r as f32 + 0.59 * g as f32 + 0.11 * b as f32
-}
-
-fn print_ascii(img: Mat) {
-    let mut buf = String::with_capacity((img.rows() * (img.cols() + 1)) as usize);
-    for i in 0..img.rows() {
-        for j in 0..img.cols() {
-            let pixel = img.at_2d::<VecN<u8, 3>>(i, j).unwrap();
-            let ch = pixel_to_ascii(pixel);
-            let rgb = pixel_to_rgb(pixel);
-            let ch = ch.fg(rgb).to_string();
-            buf.push_str(&ch);
-        }
-        buf.push('\n');
-    }
-    print!("{}", buf);
+/// Simple program to encode video into ascii animation
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// Video input, either a path "~/test.avi" or a camera id "0/1/..."
+    #[clap(short, long, default_value = "0")]
+    input: String,
+    /// Colorized or not
+    #[clap(short, long)]
+    colored: bool,
+    /// Brightness scale represented with a ASCII string
+    #[clap(short, long, default_value = r#" .:=+*#%@"#)]
+    scale: String,
+    /// Width of output animation
+    #[clap(short, long)]
+    width: Option<u32>,
+    /// Height of output animation
+    #[clap(short, long)]
+    height: Option<u32>,
 }
 
 fn main() -> Result<()> {
-    //let mut video = videoio::VideoCapture::from_file("/home/john/Documents/video2ascii/test.avi", videoio::CAP_FFMPEG)?;
-    let mut video = videoio::VideoCapture::new(0, videoio::CAP_V4L2)?;
-    loop {
-        let start = Instant::now();
-        clear_screen();
-        let mut old_frame = Mat::default();
-        let mut new_frame = Mat::default();
-        video.read(&mut old_frame)?;
-        if old_frame.size()?.width <= 0 {
-            continue;
+    let args = Args::parse();
+    let mut video = match args.input.parse::<i32>() {
+        Ok(cam) => videoinput::from_cam(Some(cam)),
+        Err(_) => videoinput::from_file(&args.input),
+    }?;
+    let (tx, rx) = mpsc::sync_channel(100);
+    thread::spawn(move || {
+        let mut img = Mat::default();
+        while video.read(&mut img).unwrap_or(false) {
+            if let Ok(img) = render::resize(&img, args.width, args.height) {
+                if let Ok(img) = render::bgr2rgb(img) {
+                    let buf = render::render_ascii(&img, args.colored, &args.scale);
+                    tx.send(buf).unwrap();
+                } else { break; }
+            } else { break; }
         }
-        imgproc::resize(
-            &old_frame,
-            &mut new_frame,
-            Size::new(96, 72),
-            0.0,
-            0.0,
-            imgproc::INTER_CUBIC,
-        )?;
-        print_ascii(new_frame);
-        let elapsed = start.elapsed().as_micros() as u64;
-        if elapsed < 41666 {
-            sleep(Duration::from_micros(41666 - elapsed));
+    });
+    while let Ok(buf) = rx.recv() {
+        let timer = Instant::now();
+        if buf == "" {
+            break;
+        } else {
+            print!("{}", buf);
+            termctl::clear_screen();
         }
+        thread::sleep(Duration::from_micros(41666) - timer.elapsed())
     }
+    Ok(())
 }
