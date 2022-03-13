@@ -1,17 +1,10 @@
-use opencv::{
-    Result,
-    videoio,
-    imgproc,
-    highgui,
-    prelude::*,
-    core::*,
-};
+use opencv::{core::*, highgui, imgproc, prelude::*, videoio, Result};
 
-use rgb::RGB8;
 use ansi_rgb::*;
+use rgb::RGB8;
 
 use std::thread::sleep;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 fn clear_screen() {
     print!("\x1b[2J");
@@ -54,8 +47,9 @@ fn print_ascii(img: Mat) {
 
 fn main() -> Result<()> {
     //let mut video = videoio::VideoCapture::from_file("/home/john/Documents/video2ascii/test.avi", videoio::CAP_FFMPEG)?;
-    let mut video = videoio::VideoCapture::new(0, videoio::CAP_V4L2)?; 
+    let mut video = videoio::VideoCapture::new(0, videoio::CAP_V4L2)?;
     loop {
+        let start = Instant::now();
         clear_screen();
         let mut old_frame = Mat::default();
         let mut new_frame = Mat::default();
@@ -63,8 +57,18 @@ fn main() -> Result<()> {
         if old_frame.size()?.width <= 0 {
             continue;
         }
-        imgproc::resize(&old_frame, &mut new_frame, Size::new(96, 72), 0.0, 0.0, imgproc::INTER_CUBIC)?;
+        imgproc::resize(
+            &old_frame,
+            &mut new_frame,
+            Size::new(96, 72),
+            0.0,
+            0.0,
+            imgproc::INTER_CUBIC,
+        )?;
         print_ascii(new_frame);
-        sleep(Duration::from_micros(41666));
+        let elapsed = start.elapsed().as_micros() as u64;
+        if elapsed < 41666 {
+            sleep(Duration::from_micros(41666 - elapsed));
+        }
     }
 }
