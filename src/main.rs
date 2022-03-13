@@ -9,7 +9,7 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::*;
 
-/// Simple program to encode video into ascii animation
+/// Encode video into ascii animation
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
