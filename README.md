@@ -1,6 +1,11 @@
 
 # video2ascii
 
+![Issues](https://img.shields.io/github/issues/jwnhy/video2ascii)
+![Forks](https://img.shields.io/github/forks/jwnhy/video2ascii)
+![Stars](https://img.shields.io/github/stars/jwnhy/video2ascii)
+![License](https://img.shields.io/github/license/jwnhy/video2ascii)
+
 Yet another video to ASCII tool (in Rust)
 
 ## Requirements
@@ -15,7 +20,7 @@ cargo install video2ascii
 
 ## Demo
 
-![Demo](./demo.apng)
+![https://github.com/jwnhy/video2ascii](./demo.apng)
 
 ## How to use
 
