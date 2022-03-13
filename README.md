@@ -18,6 +18,8 @@ Yet another video to ASCII tool (in Rust)
 cargo install video2ascii
 ```
 
+> You may also want to add `cargo` path to your `$PATH` environment variables.
+
 ## Demo
 
 ![Demo](https://github.com/jwnhy/video2ascii/raw/main/demo.apng)
