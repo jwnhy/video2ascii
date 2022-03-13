@@ -3,10 +3,6 @@
 
 Yet another video to ASCII tool (in Rust)
 
-## Demo
-
-![Demo](./demo.apng)
-
 ## Requirements
 
 - `opencv`
@@ -16,6 +12,10 @@ Yet another video to ASCII tool (in Rust)
 ```bash
 cargo install video2ascii
 ```
+
+## Demo
+
+![Demo](./demo.apng)
 
 ## How to use
 

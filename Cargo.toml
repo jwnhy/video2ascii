@@ -1,5 +1,13 @@
 [package]
 name = "video2ascii"
+authors= ["jwnhy"]
+license = "MIT"
+description = "A tool to encode video into ASCII animation"
+readme = "README.md"
+homepage = "https://github.com/jwnhy/video2ascii"
+repository = "https://github.com/jwnhy/video2ascii"
+keywords = ["cli", "ascii", "video"]
+categories = ["command-line-utilities"]
 version = "0.1.0"
 edition = "2021"
 
