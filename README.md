@@ -1,6 +1,9 @@
 
 # video2ascii
 
+[ENGLISH](./README.md)
+[简体中文](./README_CN.md)
+
 ![Issues](https://img.shields.io/github/issues/jwnhy/video2ascii)
 ![Forks](https://img.shields.io/github/forks/jwnhy/video2ascii)
 ![Stars](https://img.shields.io/github/stars/jwnhy/video2ascii)
